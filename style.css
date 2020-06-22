@@ -163,7 +163,9 @@
     display:none;
 }
 .container {
-    position: relative;
+    position: relative;    
+    min-width: 100vw;
+    min-height:100vh;
 }
 #notification {
     position:absolute;
@@ -174,8 +176,8 @@
     width: 100%;
     display:flex;
     flex-direction:column;
-    justify-content:center;
     align-items: center;
+    padding-top: 300px;
 }
 #notification.game-over {
     background-color: rgba(201, 198, 195, 0.8);
@@ -198,4 +200,9 @@
 #notification.win-game>.noti>.btn-group {
     display:flex;
     flex-direction:row;
+}
+@media(min-width:1201px) {
+    .container {
+        padding-top: 60px;
+    }
 }

@@ -74,7 +74,7 @@ function handleGame(e) {
 // process as all cells move to the left
 function handleMove(targetBoard) {
     let numList=[];
-    for(j=0;j<4;j++) {
+    for(j=0;j<targetBoard.length;j++) {
     let targetRow=targetBoard[j];
     targetRow=sliceArr(targetRow);
     targetRow=sumUp(targetRow);
@@ -85,8 +85,9 @@ function handleMove(targetBoard) {
     if(numList.includes(0)) {
         addNum(targetBoard);
     } else {
+    if(!checkGameEnd(targetBoard)) {
         endGame();
-    }
+    }} 
     return targetBoard;
 };
 //rotate board 90 degrees clockwise
@@ -117,7 +118,7 @@ return output;
 function addNum(targetBoard) {
     let row=Math.floor(Math.random()*4);
     let column=Math.floor(Math.random()*4);
-    let selectNum=Math.floor(Math.random()*20);
+    let selectNum=Math.floor(Math.random()*10);
     let num;
     if(selectNum===0) {num=4} else {num=2};
     if(targetBoard[row][column]===0) {
@@ -161,7 +162,7 @@ function endGame() {
     `;
     notification.innerHTML=`${endGame}`;
 }
-//hangle win game
+//handle win game
 function winGame() {
     notification.classList.remove('display-none');
     notification.classList.add('win-game');
@@ -180,6 +181,25 @@ function countinueGame() {
     notification.classList.remove('win-game');
     notification.classList.add('display-none');
     notification.innerHTML='';
+}
+//check game over (if any move available)
+function checkGameEnd(targetBoard) {
+    if(checkMove(targetBoard)) {return true};
+    if(checkMove(rotateClockwise(targetBoard))) {return true};
+    if(checkMove(rotateAntiClockwise(targetBoard))) {return true};
+    if(checkMove(rotateAntiClockwise(rotateAntiClockwise(targetBoard)))) {return true};
+    return false;
+} 
+//check if any move available when press left around key
+function checkMove(targetBoard) {
+    for(i=0;i<targetBoard.length;i++) {
+        let row=targetBoard[i].concat();
+        row=sliceArr(row);
+        for(j=1;j<row.length;j++) {
+            if(row[j]===row[j-1]) {return true};
+        };
+}
+return false;
 }
 renderGame(cells);
 document.addEventListener('keydown',(e)=>handleGame(e));
