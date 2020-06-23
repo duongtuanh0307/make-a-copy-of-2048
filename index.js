@@ -14,17 +14,17 @@ let highScore = localStorage.getItem("highScore") || 0;
 //renderGame
 function renderGame(data) {
   let renderDatas = "";
-  for (i = 0; i < data.length; i++) {
-    for (j = 0; j < data[i].length; j++) {
-      if (data[i][j] !== 0) {
-        const cell = `<div class='cell cell_${data[i][j]}'><p>${data[i][j]}</p></div>`;
+  data.forEach((row, i) => {
+    row.forEach((item, j) => {
+      if (item !== 0) {
+        const cell = `<div class='cell cell_${item}'><p>${item}</p></div>`;
         renderDatas = renderDatas + cell;
       } else {
-        const cell = `<div class='cell cell_${data[i][j]}'></div>`;
+        const cell = `<div class='cell cell_${item}'></div>`;
         renderDatas = renderDatas + cell;
       }
-    }
-  }
+    });
+  });
   boardGame.innerHTML = `${renderDatas}`; //render board
   let scoreValue = `
 <p>SCORE:
@@ -74,45 +74,46 @@ function handleGame(e) {
 // process as all cells move to the left
 function handleMove(targetBoard) {
   let numList = [];
-  for (j = 0; j < targetBoard.length; j++) {
-    let targetRow = targetBoard[j];
+  targetBoard.forEach((row, j) => {
+    let targetRow = row;
     targetRow = sliceArr(targetRow);
     targetRow = sumUp(targetRow);
     targetRow = sliceArr(targetRow);
     targetBoard[j] = targetRow;
     numList = [...numList, ...targetRow];
-  }
+  });
+
   if (numList.includes(0)) {
     addNum(targetBoard);
-  } else {
-    if (!checkGameEnd(targetBoard)) {
-      endGame();
-    }
+  } else if (!checkGameEnd(targetBoard)) {
+    endGame();
   }
   return targetBoard;
 }
 //rotate board 90 degrees clockwise
 function rotateClockwise(targetBoard) {
   let output = [];
-  for (i = 0; i < targetBoard.length; i++) {
+  targetBoard.forEach((row, i) => {
     newRow = [];
-    for (j = 0; j < targetBoard[0].length; j++) {
+    row.forEach((item, j) => {
       newRow.push(targetBoard[targetBoard.length - 1 - j][i]);
-    }
+    });
     output.push(newRow);
-  }
+  });
+
   return output;
 }
 //rotate board 90 degrees anticlockwise
 function rotateAntiClockwise(targetBoard) {
   let output = [];
-  for (i = 0; i < targetBoard.length; i++) {
+  targetBoard.forEach((row, i) => {
     newRow = [];
-    for (j = 0; j < targetBoard[0].length; j++) {
+    row.forEach((item, j) => {
       newRow.push(targetBoard[j][targetBoard.length - 1 - i]);
-    }
+    });
     output.push(newRow);
-  }
+  });
+
   return output;
 }
 //add 2 or 4 into board game every time user press any arrow key
@@ -136,11 +137,11 @@ function addNum(targetBoard) {
 //Move all '0' to the end of row
 function sliceArr(arr) {
   newArr = [];
-  for (i = 0; i < arr.length; i++) {
-    if (arr[i] !== 0) {
-      newArr.push(arr[i]);
+  arr.forEach((item) => {
+    if (item !== 0) {
+      newArr.push(item);
     }
-  }
+  });
   while (newArr.length < arr.length) {
     newArr.push(0);
   }
@@ -149,16 +150,19 @@ function sliceArr(arr) {
 }
 //Sum up if two side-by-size elements is equal
 function sumUp(arr) {
-  for (i = 0; i < arr.length - 1; i++) {
-    if (arr[i] === arr[i + 1]) {
-      arr[i] = arr[i] * 2;
+  arr.forEach((item, i) => {
+    if (i >= item.length) return;
+
+    if (item === arr[i + 1]) {
+      arr[i] *= 2;
       arr[i + 1] = 0;
       score = score + arr[i];
       if (arr[i] === 2048) {
         winGame();
       }
     }
-  }
+  });
+
   return arr;
 }
 //handle end game
@@ -209,15 +213,17 @@ function checkGameEnd(targetBoard) {
 }
 //check if any move available when press left around key
 function checkMove(targetBoard) {
-  for (i = 0; i < targetBoard.length; i++) {
-    let row = targetBoard[i].concat();
+  targetBoard.forEach((_row, i) => {
+    let row = _row.concat();
     row = sliceArr(row);
-    for (j = 1; j < row.length; j++) {
-      if (row[j] === row[j - 1]) {
+
+    row.forEach((item, j) => {
+      if (item === row[j - 1]) {
         return true;
       }
-    }
-  }
+    });
+  });
+
   return false;
 }
 renderGame(cells);
