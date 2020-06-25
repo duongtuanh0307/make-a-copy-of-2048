@@ -16,6 +16,7 @@ let cells = [
 ];
 let score = 0;
 let highScore = localStorage.getItem("highScore") || 0;
+
 /*--------------Handling Game function----------------------*/
 
 function renderBoard(data) {
@@ -86,6 +87,7 @@ function handleGame(e) {
   }
   renderGame(cells);
 }
+
 // process as all cells move to the left
 function handleMove(targetBoard) {
   let numList = [];
@@ -103,6 +105,7 @@ function handleMove(targetBoard) {
   }
   return targetBoard;
 }
+
 //rotate board 90 degrees clockwise
 function rotateClockwise(targetBoard) {
   const output = targetBoard.map((row, i) =>
@@ -111,6 +114,7 @@ function rotateClockwise(targetBoard) {
 
   return output;
 }
+
 //rotate board 90 degrees anticlockwise
 function rotateAntiClockwise(targetBoard) {
   const output = targetBoard.map((row, i) =>
@@ -119,6 +123,7 @@ function rotateAntiClockwise(targetBoard) {
 
   return output;
 }
+
 //add 2 or 4 into board game every time user press any arrow key
 function addNum(targetBoard) {
   const row = Math.floor(Math.random() * 4);
@@ -133,6 +138,7 @@ function addNum(targetBoard) {
   }
   addNum(targetBoard);
 }
+
 //Move all '0' to the end of row
 function sliceArr(arr) {
   const newArr = arr.filter((item) => item !== 0);
@@ -143,6 +149,7 @@ function sliceArr(arr) {
 
   return newArr;
 }
+
 //Sum up if two side-by-size elements is equal
 function sumUp(arr) {
   arr.forEach((item, i) => {
@@ -160,6 +167,7 @@ function sumUp(arr) {
 
   return arr;
 }
+
 //handle end game
 function endGame() {
   notification.classList.remove("display-none");
@@ -170,6 +178,7 @@ function endGame() {
     `;
   notification.innerHTML = `${endGame}`;
 }
+
 //handle win game
 function winGame() {
   notification.classList.remove("display-none");
@@ -185,11 +194,13 @@ function winGame() {
     `;
   notification.innerHTML = `${winGame}`;
 }
+
 function countinueGame() {
   notification.classList.remove("win-game");
   notification.classList.add("display-none");
   notification.innerHTML = "";
 }
+
 //check game over (if any move available)
 function checkGameEnd(targetBoard) {
   return (
@@ -199,6 +210,7 @@ function checkGameEnd(targetBoard) {
     checkMove(rotateAntiClockwise(rotateAntiClockwise(targetBoard)))
   );
 }
+
 //check if any move available when press left around key
 function checkMove(targetBoard) {
   return targetBoard.some((_row, i) => {
