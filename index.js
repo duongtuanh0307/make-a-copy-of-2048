@@ -11,8 +11,8 @@ let cells = [
 let score = 0;
 let highScore = localStorage.getItem("highScore") || 0;
 /*--------------Handling Game function----------------------*/
-//renderGame
-function renderGame(data) {
+
+function renderBoard(data) {
   let renderDatas = "";
   data.forEach((row, i) => {
     row.forEach((item, j) => {
@@ -25,11 +25,15 @@ function renderGame(data) {
       }
     });
   });
+
   boardGame.innerHTML = `${renderDatas}`; //render board
+}
+
+function renderScore() {
   let scoreValue = `
-<p>SCORE:
-<span>${score}</span></p>
-`;
+  <p>SCORE:
+  <span>${score}</span></p>
+  `;
   scoreDisplay.innerHTML = scoreValue; //display score
   if (highScore < score) {
     highScore = score;
@@ -37,12 +41,18 @@ function renderGame(data) {
     localStorage.setItem("highScore", highScore);
   }
   let highScoreValue = `
-    <p>BEST:
-    <span>${highScore}</span></p>
-    `;
+      <p>BEST:
+      <span>${highScore}</span></p>
+      `;
   highScoreDisplay.innerHTML = highScoreValue;
-  return;
 }
+
+//renderGame
+function renderGame(data) {
+  renderBoard(data);
+  renderScore();
+}
+
 //handle behaviour when user press keyboard
 function handleGame(e) {
   e.preventDefault();
