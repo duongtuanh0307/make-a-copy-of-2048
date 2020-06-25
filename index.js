@@ -1,3 +1,9 @@
+const KEY_CODE = {
+  ARROW_LEFT: 37,
+  ARROW_UP: 38,
+  ARROW_RIGHT: 39,
+  ARROW_DOWN: 40,
+};
 const boardGame = document.querySelector("#game");
 const notification = document.querySelector("#notification");
 const scoreDisplay = document.querySelector("#score");
@@ -57,22 +63,22 @@ function renderGame(data) {
 function handleGame(e) {
   e.preventDefault();
   switch (e.keyCode) {
-    case 37: //arrow left
+    case KEY_CODE.ARROW_LEFT:
       cells = handleMove(cells);
       break;
-    case 38: //arrow up
+    case KEY_CODE.ARROW_UP:
       cells = rotateAntiClockwise(cells);
       cells = handleMove(cells);
       cells = rotateClockwise(cells);
       break;
-    case 39: //arrow right
+    case KEY_CODE.ARROW_RIGHT:
       cells = rotateAntiClockwise(cells);
       cells = rotateAntiClockwise(cells);
       cells = handleMove(cells);
       cells = rotateClockwise(cells);
       cells = rotateClockwise(cells);
       break;
-    case 40: //arrow down
+    case KEY_CODE.ARROW_DOWN:
       cells = rotateClockwise(cells);
       cells = handleMove(cells);
       cells = rotateAntiClockwise(cells);
