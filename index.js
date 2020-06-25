@@ -85,7 +85,6 @@ function handleGame(e) {
       break;
   }
   renderGame(cells);
-  return;
 }
 // process as all cells move to the left
 function handleMove(targetBoard) {
@@ -193,19 +192,12 @@ function countinueGame() {
 }
 //check game over (if any move available)
 function checkGameEnd(targetBoard) {
-  if (checkMove(targetBoard)) {
-    return true;
-  }
-  if (checkMove(rotateClockwise(targetBoard))) {
-    return true;
-  }
-  if (checkMove(rotateAntiClockwise(targetBoard))) {
-    return true;
-  }
-  if (checkMove(rotateAntiClockwise(rotateAntiClockwise(targetBoard)))) {
-    return true;
-  }
-  return false;
+  return (
+    checkMove(targetBoard) ||
+    checkMove(rotateClockwise(targetBoard)) ||
+    checkMove(rotateAntiClockwise(targetBoard)) ||
+    checkMove(rotateAntiClockwise(rotateAntiClockwise(targetBoard)))
+  );
 }
 //check if any move available when press left around key
 function checkMove(targetBoard) {
