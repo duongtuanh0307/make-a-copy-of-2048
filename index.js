@@ -13,18 +13,18 @@ let highScore = localStorage.getItem("highScore") || 0;
 /*--------------Handling Game function----------------------*/
 
 function renderBoard(data) {
-  let renderDatas = "";
-  data.forEach((row, i) => {
-    row.forEach((item, j) => {
-      if (item !== 0) {
-        const cell = `<div class='cell cell_${item}'><p>${item}</p></div>`;
-        renderDatas = renderDatas + cell;
-      } else {
-        const cell = `<div class='cell cell_${item}'></div>`;
-        renderDatas = renderDatas + cell;
-      }
-    });
-  });
+  const renderDatas = data.reduce(
+    (prev, row) =>
+      prev +
+      row.reduce((_prev, item) => {
+        const cell =
+          item !== 0
+            ? `<div class='cell cell_${item}'><p>${item}</p></div>`
+            : `<div class='cell cell_${item}'></div>`;
+        return _prev + cell;
+      }, ""),
+    ""
+  );
 
   boardGame.innerHTML = `${renderDatas}`; //render board
 }
@@ -86,9 +86,7 @@ function handleMove(targetBoard) {
   let numList = [];
   targetBoard.forEach((row, j) => {
     let targetRow = row;
-    targetRow = sliceArr(targetRow);
-    targetRow = sumUp(targetRow);
-    targetRow = sliceArr(targetRow);
+    targetRow = sliceArr(sumUp(sliceArr(targetRow)));
     targetBoard[j] = targetRow;
     numList = [...numList, ...targetRow];
   });
@@ -102,61 +100,43 @@ function handleMove(targetBoard) {
 }
 //rotate board 90 degrees clockwise
 function rotateClockwise(targetBoard) {
-  let output = [];
-  targetBoard.forEach((row, i) => {
-    newRow = [];
-    row.forEach((item, j) => {
-      newRow.push(targetBoard[targetBoard.length - 1 - j][i]);
-    });
-    output.push(newRow);
-  });
+  const output = targetBoard.map((row, i) =>
+    row.map((_, j) => targetBoard[targetBoard.length - 1 - j][i])
+  );
 
   return output;
 }
 //rotate board 90 degrees anticlockwise
 function rotateAntiClockwise(targetBoard) {
-  let output = [];
-  targetBoard.forEach((row, i) => {
-    newRow = [];
-    row.forEach((item, j) => {
-      newRow.push(targetBoard[j][targetBoard.length - 1 - i]);
-    });
-    output.push(newRow);
-  });
+  const output = targetBoard.map((row, i) =>
+    row.map((item, j) => targetBoard[j][targetBoard.length - 1 - i])
+  );
 
   return output;
 }
 //add 2 or 4 into board game every time user press any arrow key
 function addNum(targetBoard) {
-  let row = Math.floor(Math.random() * 4);
-  let column = Math.floor(Math.random() * 4);
-  let selectNum = Math.floor(Math.random() * 10);
-  let num;
-  if (selectNum === 0) {
-    num = 4;
-  } else {
-    num = 2;
-  }
+  const row = Math.floor(Math.random() * 4);
+  const column = Math.floor(Math.random() * 4);
+  const selectNum = Math.floor(Math.random() * 10);
+
+  const num = selectNum === 0 ? 4 : 2;
+
   if (targetBoard[row][column] === 0) {
     targetBoard[row][column] = num;
     return;
-  } else {
-    addNum(targetBoard);
   }
+  addNum(targetBoard);
 }
 //Move all '0' to the end of row
 function sliceArr(arr) {
-  newArr = [];
-  arr.forEach((item) => {
-    if (item !== 0) {
-      newArr.push(item);
-    }
-  });
+  const newArr = arr.filter((item) => item !== 0);
+
   while (newArr.length < arr.length) {
     newArr.push(0);
   }
-  arr = newArr;
-  return arr;
+
+  return newArr;
 }
 //Sum up if two side-by-size elements is equal
 function sumUp(arr) {
@@ -223,18 +203,12 @@ function checkGameEnd(targetBoard) {
 }
 //check if any move available when press left around key
 function checkMove(targetBoard) {
-  targetBoard.forEach((_row, i) => {
+  return targetBoard.some((_row, i) => {
     let row = _row.concat();
     row = sliceArr(row);
 
-    row.forEach((item, j) => {
-      if (item === row[j - 1]) {
-        return true;
-      }
-    });
+    return row.some((item, j) => item === row[j - 1]);
   });
-
-  return false;
 }
 renderGame(cells);
 document.addEventListener("keydown", (e) => handleGame(e));
