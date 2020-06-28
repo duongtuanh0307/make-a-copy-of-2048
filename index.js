@@ -1,172 +1,172 @@
-const boardGame=document.querySelector('#game');
-const notification=document.querySelector('#notification');
-const scoreDisplay=document.querySelector('#score');
-const highScoreDisplay=document.querySelector('#high-score');
-let cells=[
-    [0,0,0,0],
-    [0,0,0,0],
-    [0,0,0,0],
-    [0,0,0,0]
-];
-let score=0;
-let highScore=localStorage.getItem('highScore')||0;
-/*--------------Handling Game function----------------------*/
-//renderGame
-function renderGame(data) {
-    let renderDatas='';
-for(i=0;i<data.length;i++) {
-    for(j=0;j<data[i].length;j++) {
-        if(data[i][j]!==0) {
-            const cell=`<div class='cell cell_${data[i][j]}'><p>${data[i][j]}</p></div>`;
-            renderDatas=renderDatas+cell;
-        } else {
-            const cell=`<div class='cell cell_${data[i][j]}'></div>`;
-            renderDatas=renderDatas+cell;
-        };
-    };
+const KEY_CODE = {
+    ARROW_LEFT: 37,
+    ARROW_UP: 38,
+    ARROW_RIGHT: 39,
+    ARROW_DOWN: 40,
 }
-boardGame.innerHTML=`${renderDatas}`; //render board
-let scoreValue=`
+const boardGame = document.querySelector('#game');
+const notification = document.querySelector('#notification');
+const scoreDisplay = document.querySelector('#score');
+const highScoreDisplay = document.querySelector('#high-score');
+let cells = [
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0],
+    [0, 0, 0, 0]
+];
+let score = 0;
+let highScore = localStorage.getItem('highScore') || 0;
+/*--------------Handling Game function----------------------*/
+function renderBoard(data) {
+    const renderDatas = data.reduce(
+        (prev, row) =>
+            prev +
+            row.reduce(
+                (_prev, item) => {
+                    const cell =
+                        item !== 0 ?
+                            `<div class='cell cell_${item}'><p>${item}</p></div>` :
+                            `<div class='cell cell_${item}'></div>`;
+                    return _prev + cell;
+                }
+                , '')
+        , '');
+    boardGame.innerHTML = renderDatas;
+}
+function renderScore(score, highScore) {
+    let scoreValue = `
 <p>SCORE:
 <span>${score}</span></p>
 `;
-scoreDisplay.innerHTML=scoreValue; //display score
-if(highScore<score) {
-    highScore=score;
-    localStorage.removeItem('highScore');
-    localStorage.setItem('highScore',highScore); 
-} 
-let highScoreValue=`
+    scoreDisplay.innerHTML = scoreValue; //display score
+    if (highScore < score) {
+        highScore = score;
+        localStorage.removeItem('highScore');
+        localStorage.setItem('highScore', highScore);
+    }
+    let highScoreValue = `
     <p>BEST:
     <span>${highScore}</span></p>
     `;
-highScoreDisplay.innerHTML=highScoreValue;
-return;
+    highScoreDisplay.innerHTML = highScoreValue;
+    return;
 };
+
 //handle behaviour when user press keyboard
 function handleGame(e) {
     e.preventDefault();
-    switch(e.keyCode) {
-        case 37: //arrow left
-            cells=handleMove(cells);
-        break;
-        case 38: //arrow up
-            cells=rotateAntiClockwise(cells);
-            cells=handleMove(cells);
-            cells=rotateClockwise(cells);
-        break;
-        case 39: //arrow right
-            cells=rotateAntiClockwise(cells);
-            cells=rotateAntiClockwise(cells);
-            cells=handleMove(cells);
-            cells=rotateClockwise(cells);
-            cells=rotateClockwise(cells);
-        break;
-        case 40: //arrow down
-            cells=rotateClockwise(cells);
-            cells=handleMove(cells);
-            cells=rotateAntiClockwise(cells);
-        break;
+    switch (e.keyCode) {
+        case KEY_CODE.ARROW_LEFT: //arrow left
+            cells = handleMove(cells);
+            break;
+        case KEY_CODE.ARROW_UP: //arrow up
+            cells = rotateAntiClockwise(cells);
+            cells = handleMove(cells);
+            cells = rotateClockwise(cells);
+            break;
+        case KEY_CODE.ARROW_RIGHT: //arrow right
+            cells = rotateAntiClockwise(cells);
+            cells = rotateAntiClockwise(cells);
+            cells = handleMove(cells);
+            cells = rotateClockwise(cells);
+            cells = rotateClockwise(cells);
+            break;
+        case KEY_CODE.ARROW_DOWN: //arrow down
+            cells = rotateClockwise(cells);
+            cells = handleMove(cells);
+            cells = rotateAntiClockwise(cells);
+            break;
     };
-    renderGame(cells);
+    renderBoard(cells);
+    renderScore(score, highScore);
+    addNum(cells);
     return;
 }
+
 // process as all cells move to the left
 function handleMove(targetBoard) {
-    let numList=[];
-    for(j=0;j<targetBoard.length;j++) {
-    let targetRow=targetBoard[j];
-    targetRow=sliceArr(targetRow);
-    targetRow=sumUp(targetRow);
-    targetRow=sliceArr(targetRow);
-    targetBoard[j]=targetRow;
-    numList=[...numList,...targetRow];
-    };
-    if(numList.includes(0)) {
+    let numList = [];
+    targetBoard.forEach((row, j) => {
+        let targetRow = row;
+        targetRow = sliceArr(sumUp(sliceArr(targetRow)));
+        targetBoard[j] = targetRow;
+        numList = [...numList, ...targetRow];
+    });
+    if (numList.includes(0)) {
         addNum(targetBoard);
     } else {
-    if(!checkGameEnd(targetBoard)) {
-        endGame();
-    }} 
+        if (!checkGameEnd(targetBoard)) {
+            endGame();
+        }
+    }
     return targetBoard;
 };
+
 //rotate board 90 degrees clockwise
 function rotateClockwise(targetBoard) {
-    let output=[];
-    for(i=0;i<targetBoard.length;i++) {
-        newRow=[];
-        for(j=0;j<targetBoard[0].length;j++) {
-                newRow.push(targetBoard[targetBoard.length-1-j][i]);
-        };
-        output.push(newRow);
-    };
-return output;
-    }
+    const output = targetBoard.map((row, i) =>
+        row.map((item, j) => targetBoard[targetBoard.length - 1 - j][i])
+    );
+    return output;
+}
+
 //rotate board 90 degrees anticlockwise 
 function rotateAntiClockwise(targetBoard) {
-    let output=[];
-    for(i=0;i<targetBoard.length;i++) {
-        newRow=[];
-        for(j=0;j<targetBoard[0].length;j++) {
-                newRow.push(targetBoard[j][targetBoard.length-1-i]);
-        };
-        output.push(newRow);
-    };
-return output;
+    const output = targetBoard.map((row, i) =>
+        row.map((_, j) => targetBoard[j][targetBoard.length - 1 - i])
+    );
+    return output;
 }
+
 //add 2 or 4 into board game every time user press any arrow key
 function addNum(targetBoard) {
-    let row=Math.floor(Math.random()*4);
-    let column=Math.floor(Math.random()*4);
-    let selectNum=Math.floor(Math.random()*10);
-    let num;
-    if(selectNum===0) {num=4} else {num=2};
-    if(targetBoard[row][column]===0) {
-        targetBoard[row][column]=num;
-        return
-    } else {addNum(targetBoard)};
+    const row = Math.floor(Math.random() * 4);
+    const column = Math.floor(Math.random() * 4);
+    const selectNum = Math.floor(Math.random() * 10);
+    const num = selectNum === 0 ? 4 : 2;
+    if (targetBoard[row][column] === 0) {
+        targetBoard[row][column] = num;
+        return;
+    }
+    addNum(targetBoard);
 }
 //Move all '0' to the end of row
+
 function sliceArr(arr) {
-    newArr=[];
-    for(i=0;i<arr.length;i++) {
-        if(arr[i]!==0) {
-           newArr.push(arr[i]);
-        };
-    };
-    while(newArr.length<arr.length) {
-        newArr.push(0);
-    };
-    arr=newArr;
-    return arr;
+    const newArr = arr.filter((item) => item !== 0);
+    while (newArr.length < arr.length) { newArr.push(0) };
+    return newArr;
 }
+
 //Sum up if two side-by-size elements is equal
 function sumUp(arr) {
-    for(i=0;i<arr.length-1;i++) {
-        if(arr[i]===arr[i+1]) {
-            arr[i]=arr[i]*2;
-            arr[i+1]=0;
-            score=score+arr[i];
-            if(arr[i]===2048) {winGame()};
+    for (i = 0; i < arr.length - 1; i++) {
+        if (arr[i] === arr[i + 1]) {
+            arr[i] = arr[i] * 2;
+            arr[i + 1] = 0;
+            score = score + arr[i];
+            if (arr[i] === 2048) { winGame() };
         }
     };
     return arr;
 }
+
 //handle end game 
 function endGame() {
     notification.classList.remove('display-none');
     notification.classList.add('game-over');
-    let endGame=`
+    let endGame = `
     <p class='noti'>Game over!</p>
     <button class='btn' onclick='location.reload()'>Try again</button>
     `;
-    notification.innerHTML=`${endGame}`;
+    notification.innerHTML = `${endGame}`;
 }
+
 //handle win game
 function winGame() {
     notification.classList.remove('display-none');
     notification.classList.add('win-game');
-    let winGame=`
+    let winGame = `
     <p class='noti'>
     YOU WIN!
     </p>
@@ -175,32 +175,32 @@ function winGame() {
     <button class='btn' onclick='location.reload()'>Start new game</button>
     </div>
     `;
-    notification.innerHTML=`${winGame}`;
+    notification.innerHTML = `${winGame}`;
 }
+
 function countinueGame() {
     notification.classList.remove('win-game');
     notification.classList.add('display-none');
-    notification.innerHTML='';
+    notification.innerHTML = '';
 }
+
 //check game over (if any move available)
 function checkGameEnd(targetBoard) {
-    if(checkMove(targetBoard)) {return true};
-    if(checkMove(rotateClockwise(targetBoard))) {return true};
-    if(checkMove(rotateAntiClockwise(targetBoard))) {return true};
-    if(checkMove(rotateAntiClockwise(rotateAntiClockwise(targetBoard)))) {return true};
-    return false;
-} 
+    return checkMove(targetBoard) ||
+        checkMove(rotateClockwise(targetBoard)) ||
+        checkMove(rotateAntiClockwise(targetBoard)) ||
+        checkMove(rotateAntiClockwise(rotateAntiClockwise(targetBoard)))
+}
+
 //check if any move available when press left around key
 function checkMove(targetBoard) {
-    for(i=0;i<targetBoard.length;i++) {
-        let row=targetBoard[i].concat();
-        row=sliceArr(row);
-        for(j=1;j<row.length;j++) {
-            if(row[j]===row[j-1]) {return true};
-        };
+    return targetBoard.some((_row, i) => {
+        let row = _row.concat();
+        row = sliceArr(row);
+        return row.some((item, j) => item === row[j - 1]);
+    });
 }
-return false;
-}
-renderGame(cells);
-document.addEventListener('keydown',(e)=>handleGame(e));
+renderBoard(cells);
+renderScore(score, highScore);
+document.addEventListener('keydown', (e) => handleGame(e));
 
